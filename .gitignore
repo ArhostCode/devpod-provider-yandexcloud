@@ -1,0 +1,5 @@
+.idea
+env
+devpod-provider-yandexcloud
+release
+/vendor/
