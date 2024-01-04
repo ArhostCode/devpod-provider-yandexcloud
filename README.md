@@ -5,6 +5,7 @@
 ## Example
 
 ![](assets/work.gif)
+![](assets/preview.gif)
 
 ## Getting started
 
