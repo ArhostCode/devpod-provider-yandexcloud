@@ -2,72 +2,70 @@ name: yandexcloud
 version: ##VERSION##
 description: |-
   DevPod on YandexCloud
-icon: https://raw.githubusercontent.com/dirien/devpod-provider-exoscale/main/exoscale.svg
+icon: https://raw.githubusercontent.com/ArhostCode/devpod-provider-yandexcloud/main/yc.svg
 optionGroups:
-- options:
-  - YC_ZONE
-  - YC_INSTANCE_TYPE
-  - YC_INSTANCE_TEMPLATE
-  - YC_DISK_SIZE_GB
-  - SSH_PUBLIC_KEY
-  - YC_FOLDER_ID
-  name: "YandexCloud options"
-- options:
-  - AGENT_PATH
-  - AGENT_DATA_PATH
-  - INACTIVITY_TIMEOUT
-  - INJECT_DOCKER_CREDENTIALS
-  - INJECT_GIT_CREDENTIALS
-  name: "Agent options"
+  - options:
+      - YC_ZONE
+      - YC_PLATFORM_ID
+      - YC_CORES_COUNT
+      - YC_MEMORY_SIZE_GB
+      - YC_DISK_SIZE_GB
+      - YC_FOLDER_ID
+    name: "YandexCloud options"
+  - options:
+      - AGENT_PATH
+      - AGENT_DATA_PATH
+      - INACTIVITY_TIMEOUT
+      - INJECT_DOCKER_CREDENTIALS
+      - INJECT_GIT_CREDENTIALS
+    name: "Agent options"
 options:
   YC_API_KEY:
     description: The YandexCloud API Key to use.
     required: true
     password: true
 
-  YC_API_SECRET:
-    description: The YandexCloud API Secret to use.
-    required: true
-    password: true
+#  YC_API_SECRET:
+#    description: The YandexCloud API Secret to use.
+#    required: true
+#    password: true
 
   YC_ZONE:
     description: The YandexCloud zone to use.
     required: true
     default: ru-central1-a
     suggestions:
-    - ru-central1-a
-    - ru-central1-b
-    - ru-central1-c
-    - ru-central1-d
+      - ru-central1-a
+      - ru-central1-b
+      - ru-central1-c
+      - ru-central1-d
 
   YC_DISK_SIZE_GB:
     description: The disk size in GB.
     default: "20"
 
+  YC_MEMORY_SIZE_GB:
+    description: The RAM size in GB.
+    default: "8"
+
   YC_FOLDER_ID:
     description: Folder ID
     required: true
 
-  SSH_PUBLIC_KEY:
-    description: Ssh public key
+  YC_CORES_COUNT:
+    description: Yandex Cloud Platform Cores count
     required: true
 
-  YC_INSTANCE_TYPE:
-    description: The YandexCloud instance type to use.
-    default: medium
+  YC_PLATFORM_ID:
+    description: The YandexCloud platform id
+    default: standard-v1
     suggestions:
-    - micro
-    - tiny
-    - small
-    - medium
-    - large
-    - extra-large
-    - huge
-    - mega
-    - titan
-  YC_INSTANCE_TEMPLATE:
-    description: The YandexCloud instance template to use.
-    default: container-optimized instance
+      - standard-v1
+      - standard-v2
+      - standard-v3
+  #  YC_INSTANCE_TEMPLATE:
+  #    description: The YandexCloud instance template to use.
+  #    default: container-optimized instance
 
   INACTIVITY_TIMEOUT:
     description: If defined, will automatically stop the VM after the inactivity period.
@@ -92,39 +90,39 @@ agent:
   injectDockerCredentials: ${INJECT_DOCKER_CREDENTIALS}
   binaries:
     YC_PROVIDER:
-    - os: linux
-      arch: amd64
-      path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-linux-amd64
-      checksum: ##CHECKSUM_LINUX_AMD64##
-    - os: linux
-      arch: arm64
-      path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-linux-arm64
-      checksum: ##CHECKSUM_LINUX_ARM64##
+      - os: linux
+        arch: amd64
+        path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-linux-amd64
+        checksum: ##CHECKSUM_LINUX_AMD64##
+      - os: linux
+        arch: arm64
+        path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-linux-arm64
+        checksum: ##CHECKSUM_LINUX_ARM64##
   exec:
     shutdown: |-
       ${YC_PROVIDER} stop
 binaries:
   YC_PROVIDER:
-  - os: linux
-    arch: amd64
-    path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-linux-amd64
-    checksum: ##CHECKSUM_LINUX_AMD64##
-  - os: linux
-    arch: arm64
-    path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-linux-arm64
-    checksum: ##CHECKSUM_LINUX_ARM64##
-  - os: darwin
-    arch: amd64
-    path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-darwin-amd64
-    checksum: ##CHECKSUM_DARWIN_AMD64##
-  - os: darwin
-    arch: arm64
-    path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-darwin-arm64
-    checksum: ##CHECKSUM_DARWIN_ARM64##
-  - os: windows
-    arch: amd64
-    path: https://github.com/dirien/devpod-provider-exoscale/releases/download/##VERSION##/devpod-provider-exoscale-windows-amd64.exe
-    checksum: ##CHECKSUM_WINDOWS_AMD64##
+    - os: linux
+      arch: amd64
+      path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-linux-amd64
+      checksum: ##CHECKSUM_LINUX_AMD64##
+    - os: linux
+      arch: arm64
+      path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-linux-arm64
+      checksum: ##CHECKSUM_LINUX_ARM64##
+    - os: darwin
+      arch: amd64
+      path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-darwin-amd64
+      checksum: ##CHECKSUM_DARWIN_AMD64##
+    - os: darwin
+      arch: arm64
+      path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-darwin-arm64
+      checksum: ##CHECKSUM_DARWIN_ARM64##
+    - os: windows
+      arch: amd64
+      path: https://github.com/ArhostCode/devpod-provider-yandexcloud/releases/download/##VERSION##/devpod-provider-yandexcloud-windows-amd64.exe
+      checksum: ##CHECKSUM_WINDOWS_AMD64##
 exec:
   init: ${YC_PROVIDER} init
   command: ${YC_PROVIDER} command

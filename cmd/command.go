@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dirien/devpod-provider-exoscale/pkg/exoscale"
+	"github.com/ArhostCode/devpod-provider-yandexcloud/pkg/yandexcloud"
 	"github.com/loft-sh/devpod/pkg/provider"
 	"github.com/loft-sh/devpod/pkg/ssh"
 	"github.com/loft-sh/log"
@@ -23,14 +23,14 @@ func NewCommandCmd() *cobra.Command {
 		Use:   "command",
 		Short: "Command an instance",
 		RunE: func(_ *cobra.Command, args []string) error {
-			exoscaleProvider, err := exoscale.NewProvider(log.Default, false)
+			ycProvider, err := yandexcloud.NewProvider(log.Default, false)
 			if err != nil {
 				return err
 			}
 
 			return cmd.Run(
 				context.Background(),
-				exoscaleProvider,
+				ycProvider,
 				provider.FromEnvironment(),
 				log.Default,
 			)
@@ -43,7 +43,7 @@ func NewCommandCmd() *cobra.Command {
 // Run runs the command logic
 func (cmd *CommandCmd) Run(
 	ctx context.Context,
-	exoscaleProvider *exoscale.ExoscaleProvider,
+	ycProvider *yandexcloud.YCProvider,
 	machine *provider.Machine,
 	logs log.Logger,
 ) error {
@@ -53,17 +53,29 @@ func (cmd *CommandCmd) Run(
 		return fmt.Errorf("command environment variable is missing")
 	}
 
-	privateKey, err := ssh.GetPrivateKeyRawBase(exoscaleProvider.Config.MachineFolder)
+	//log.GetInstance().Info("Loading key")
+
+	privateKey, err := ssh.GetPrivateKeyRawBase(ycProvider.Config.MachineFolder)
+
 	if err != nil {
 		return fmt.Errorf("load private key: %w", err)
 	}
 
+	//log.GetInstance().Info("Private key loaded")
+
 	// get instance
-	instance, err := exoscale.GetDevpodInstance(ctx, exoscaleProvider)
+
+	//log.GetInstance().Info("Getting Instance")
+
+	instance, err := yandexcloud.GetDevpodInstance(ctx, ycProvider)
 	if err != nil {
 		return err
 	}
-	sshClient, err := ssh.NewSSHClient("devpod", instance.PublicIPAddress.String()+":22", privateKey)
+
+	//log.GetInstance().Info("Getting Interfaces")
+	ip := instance.NetworkInterfaces[0].PrimaryV4Address.OneToOneNat.Address
+	//log.GetInstance().Infof("IP %v\n", ip)
+	sshClient, err := ssh.NewSSHClient("devpod", ip+":22", privateKey)
 
 	if err != nil {
 		return errors.Wrap(err, "create ssh client")

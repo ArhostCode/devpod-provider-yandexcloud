@@ -7,23 +7,23 @@ import (
 )
 
 var (
-	YC_ZONE              = "YC_ZONE"
-	YC_INSTANCE_TYPE     = "YC_INSTANCE_TYPE"
-	YC_FOLDER_ID         = "YC_FOLDER_ID"
-	YC_INSTANCE_TEMPLATE = "YC_INSTANCE_TEMPLATE"
-	YC_DISK_SIZE_GB      = "YC_DISK_SIZE_GB"
-	MACHINE_ID           = "MACHINE_ID"
-	MACHINE_FOLDER       = "MACHINE_FOLDER"
-	SSH_PUBLIC_KEY       = "SSH_PUBLIC_KEY"
+	YC_ZONE           = "YC_ZONE"
+	YC_PLATFORM_ID    = "YC_PLATFORM_ID"
+	YC_FOLDER_ID      = "YC_FOLDER_ID"
+	YC_DISK_SIZE_GB   = "YC_DISK_SIZE_GB"
+	MACHINE_ID        = "MACHINE_ID"
+	MACHINE_FOLDER    = "MACHINE_FOLDER"
+	YC_MEMORY_SIZE_GB = "YC_MEMORY_SIZE_GB"
+	YC_CORES_COUNT    = "YC_CORES_COUNT"
 )
 
 type Options struct {
-	Zone             string
-	InstanceType     string
-	InstanceTemplate string
-	DiskSizeGB       string
-	FolderId         string
-	SSHPublicKey     string
+	Zone       string
+	PlatformId string
+	DiskSizeGB string
+	FolderId   string
+	CoresCount string
+	RAMSizeGB  string
 
 	MachineID     string
 	MachineFolder string
@@ -46,11 +46,7 @@ func FromEnv(init bool) (*Options, error) {
 	}
 	retOptions.Zone = strings.ToLower(retOptions.Zone)
 
-	retOptions.InstanceType, err = fromEnvOrError(YC_INSTANCE_TYPE)
-	if err != nil {
-		return nil, err
-	}
-	retOptions.InstanceTemplate, err = fromEnvOrError(YC_INSTANCE_TEMPLATE)
+	retOptions.PlatformId, err = fromEnvOrError(YC_PLATFORM_ID)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +58,11 @@ func FromEnv(init bool) (*Options, error) {
 	if err != nil {
 		return nil, err
 	}
-	retOptions.SSHPublicKey, err = fromEnvOrError(SSH_PUBLIC_KEY)
+	retOptions.CoresCount, err = fromEnvOrError(YC_CORES_COUNT)
+	if err != nil {
+		return nil, err
+	}
+	retOptions.RAMSizeGB, err = fromEnvOrError(YC_MEMORY_SIZE_GB)
 	if err != nil {
 		return nil, err
 	}

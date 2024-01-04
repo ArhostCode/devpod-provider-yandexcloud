@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/dirien/devpod-provider-exoscale/pkg/exoscale"
+	"github.com/ArhostCode/devpod-provider-yandexcloud/pkg/yandexcloud"
 
 	"github.com/loft-sh/devpod/pkg/provider"
 	"github.com/loft-sh/log"
@@ -19,14 +19,14 @@ func NewStartCmd() *cobra.Command {
 		Use:   "start",
 		Short: "Start an instance",
 		RunE: func(_ *cobra.Command, args []string) error {
-			exoscaleProvider, err := exoscale.NewProvider(log.Default, false)
+			ycProvider, err := yandexcloud.NewProvider(log.Default, false)
 			if err != nil {
 				return err
 			}
 
 			return cmd.Run(
 				context.Background(),
-				exoscaleProvider,
+				ycProvider,
 				provider.FromEnvironment(),
 				log.Default,
 			)
@@ -39,9 +39,9 @@ func NewStartCmd() *cobra.Command {
 // Run runs the command logic
 func (cmd *StartCmd) Run(
 	ctx context.Context,
-	providerExoscale *exoscale.ExoscaleProvider,
+	ycProvider *yandexcloud.YCProvider,
 	machine *provider.Machine,
 	logs log.Logger,
 ) error {
-	return exoscale.Start(ctx, providerExoscale)
+	return yandexcloud.Start(ctx, ycProvider)
 }

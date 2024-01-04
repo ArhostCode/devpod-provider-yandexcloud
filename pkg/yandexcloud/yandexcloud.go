@@ -2,8 +2,10 @@ package yandexcloud
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/ArhostCode/devpod-provider-yandexcloud/pkg/options"
+	"github.com/loft-sh/devpod/pkg/ssh"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
@@ -62,11 +64,6 @@ func NewProvider(logs log.Logger, init bool) (*YCProvider, error) {
 	if apiKey == "" {
 		return nil, errors.Errorf("YC_API_KEY is not set")
 	}
-	//y0_AgAAAAA-z7NpAATuwQAAAAD3EpZdVHcRVJKFRJe7MJujZCcrw3NuaKo
-	apiSecret := os.Getenv("YC_API_SECRET")
-	if apiSecret == "" {
-		return nil, errors.Errorf("YC_API_SECRET is not set")
-	}
 
 	ctx := context.Background()
 	sdk, err := ycapi.Build(ctx, ycapi.Config{
@@ -107,6 +104,7 @@ func GetDevpodInstance(ctx context.Context, ycProvider *YCProvider) (*compute.In
 
 	getInstanceRequest := compute.GetInstanceRequest{
 		InstanceId: instanceID,
+		View:       compute.InstanceView_FULL,
 	}
 
 	instance, err := ycProvider.SDK.Compute().Instance().Get(ctx, &getInstanceRequest)
@@ -116,9 +114,9 @@ func GetDevpodInstance(ctx context.Context, ycProvider *YCProvider) (*compute.In
 	return instance, nil
 }
 
-func Init(ctx context.Context, exoscaleProvider *YCProvider) error {
-	//ctx2 := exoapi.WithEndpoint(ctx, exoapi.NewReqEndpoint("", exoscaleProvider.Config.Zone))
-	//_, err := exoscaleProvider.SDK.ListZones(ctx2)
+func Init(ctx context.Context, ycProvider *YCProvider) error {
+	//ctx2 := exoapi.WithEndpoint(ctx, exoapi.NewReqEndpoint("", ycProvider.Config.Zone))
+	//_, err := ycProvider.SDK.ListZones(ctx2)
 	//if err != nil {
 	//	return err
 	//}
@@ -203,6 +201,8 @@ func Stop(ctx context.Context, ycProvider *YCProvider) error {
 }
 
 func createInstance(ctx context.Context, ycProvider *YCProvider) (*operation.Operation, error) {
+	publicKeyBase, err := ssh.GetPublicKeyBase(ycProvider.Config.MachineFolder)
+	publicKey, err := base64.StdEncoding.DecodeString(publicKeyBase)
 
 	userData := fmt.Sprintf(`#cloud-config
 users:
@@ -211,21 +211,25 @@ users:
   groups: [ sudo, docker ]
   ssh_authorized_keys:
   - %s
-  sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]`, ycProvider.Config.SSHPublicKey)
+  sudo: [ "ALL=(ALL) NOPASSWD:ALL" ]`, publicKey)
 
 	subnetID := findSubnet(ctx, ycProvider.SDK, ycProvider.Config.FolderId, ycProvider.Config.Zone)
 	sourceImageID := sourceImage(ctx, ycProvider.SDK)
 
 	bootDiskSize, err := strconv.Atoi(ycProvider.Config.DiskSizeGB)
 
+	schedulingPolicy := compute.SchedulingPolicy{Preemptible: true}
+	coresCount, err := strconv.Atoi(ycProvider.Config.CoresCount)
+	ramSizeGb, err := strconv.Atoi(ycProvider.Config.RAMSizeGB)
+
 	request := &compute.CreateInstanceRequest{
 		FolderId:   ycProvider.Config.FolderId,
 		Name:       ycProvider.Config.MachineID,
 		ZoneId:     ycProvider.Config.Zone,
-		PlatformId: "standard-v1",
+		PlatformId: ycProvider.Config.PlatformId,
 		ResourcesSpec: &compute.ResourcesSpec{
-			Cores:  1,
-			Memory: 2 * 1024 * 1024 * 1024,
+			Cores:  int64(coresCount),
+			Memory: int64(ramSizeGb * 1024 * 1024 * 1024),
 		},
 		BootDiskSpec: &compute.AttachedDiskSpec{
 			AutoDelete: true,
@@ -249,7 +253,8 @@ users:
 				},
 			},
 		},
-		Metadata: map[string]string{"user-data": userData},
+		Metadata:         map[string]string{"user-data": userData},
+		SchedulingPolicy: &schedulingPolicy,
 	}
 	op, err := ycProvider.SDK.Compute().Instance().Create(ctx, request)
 	return op, err
@@ -280,7 +285,7 @@ func findSubnet(ctx context.Context, sdk *ycapi.SDK, folderID string, zone strin
 func sourceImage(ctx context.Context, sdk *ycapi.SDK) string {
 	image, err := sdk.Compute().Image().GetLatestByFamily(ctx, &compute.GetImageLatestByFamilyRequest{
 		FolderId: "standard-images",
-		Family:   "ubuntu-2204-lts",
+		Family:   "container-optimized-image",
 	})
 	if err != nil {
 		return ""

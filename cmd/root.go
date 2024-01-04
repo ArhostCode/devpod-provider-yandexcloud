@@ -13,7 +13,7 @@ import (
 func NewRootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:           "devpod-provider-yandexcloud",
-		Short:         "Exoscale Provider commands",
+		Short:         "YandexCloud Provider commands",
 		SilenceErrors: true,
 		SilenceUsage:  true,
 

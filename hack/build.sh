@@ -23,7 +23,8 @@ GO_BUILD_CMD="go build"
 GO_BUILD_LDFLAGS="-s -w"
 
 if [[ -z "${PROVIDER_BUILD_PLATFORMS}" ]]; then
-    PROVIDER_BUILD_PLATFORMS="linux windows darwin"
+#    PROVIDER_BUILD_PLATFORMS="linux windows darwin"
+    PROVIDER_BUILD_PLATFORMS="linux windows"
 fi
 
 if [[ -z "${PROVIDER_BUILD_ARCHS}" ]]; then
@@ -61,4 +62,5 @@ for OS in ${PROVIDER_BUILD_PLATFORMS[@]}; do
 done
 
 # generate provider.yaml
+RELEASE_VERSION="1.0.0"
 go run -mod vendor "${PROVIDER_ROOT}/hack/provider/main.go" ${RELEASE_VERSION} > "${PROVIDER_ROOT}/release/provider.yaml"

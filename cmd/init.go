@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"context"
-	"github.com/dirien/devpod-provider-exoscale/pkg/exoscale"
+	"github.com/ArhostCode/devpod-provider-yandexcloud/pkg/yandexcloud"
 
 	"github.com/loft-sh/devpod/pkg/provider"
 	"github.com/loft-sh/log"
@@ -19,13 +19,13 @@ func NewInitCmd() *cobra.Command {
 		Use:   "init",
 		Short: "Init account",
 		RunE: func(_ *cobra.Command, args []string) error {
-			exoscaleProvider, err := exoscale.NewProvider(log.Default, true)
+			ycProvider, err := yandexcloud.NewProvider(log.Default, true)
 			if err != nil {
 				return err
 			}
 			return cmd.Run(
 				context.Background(),
-				exoscaleProvider,
+				ycProvider,
 				provider.FromEnvironment(),
 				log.Default,
 			)
@@ -38,9 +38,9 @@ func NewInitCmd() *cobra.Command {
 // Run runs the init logic
 func (cmd *InitCmd) Run(
 	ctx context.Context,
-	exoscaleProvider *exoscale.ExoscaleProvider,
+	ycProvider *yandexcloud.YCProvider,
 	machine *provider.Machine,
 	logs log.Logger,
 ) error {
-	return exoscale.Init(ctx, exoscaleProvider)
+	return yandexcloud.Init(ctx, ycProvider)
 }
