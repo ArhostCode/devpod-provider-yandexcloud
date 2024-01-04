@@ -42,10 +42,12 @@ options:
 
   YC_DISK_SIZE_GB:
     description: The disk size in GB.
-    default: "20"
+    required: true
+    default: "30"
 
   YC_MEMORY_SIZE_GB:
     description: The RAM size in GB.
+    required: true
     default: "8"
 
   YC_FOLDER_ID:
@@ -54,11 +56,13 @@ options:
 
   YC_CORES_COUNT:
     description: Yandex Cloud Platform Cores count
+    default: "2"
     required: true
 
   YC_PLATFORM_ID:
-    description: The YandexCloud platform id
+    description: Yandex Cloud platform id
     default: standard-v1
+    required: true
     suggestions:
       - standard-v1
       - standard-v2
